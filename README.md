@@ -7,18 +7,19 @@
 
 ## What's included
 Within the download you'll find the following directories and files, logically grouping common assets and providing both complied and minified variations. You'll see something like this:
- * Client
+* Chatting_server/
    * Client
-      * Client.vcxproj
-      * Client.vcxproj.filters
-      * Client.c
-   * Client.Sln
-* Server
+      * Client
+         * Client.vcxproj
+         * Client.vcxproj.filters
+         * Client.c
+      * Client.Sln
    * Server
-      * Server.vcxproj
-      * Server.vcxproj.filters
-      * Server.c
-   * Server.Sln
+      * Server
+         * Server.vcxproj
+         * Server.vcxproj.filters
+         * Server.c
+      * Server.Sln
 
 ## Operation process
 1. Clone the repo: `git clone https://github.com/LeeKiJong/Chatting_server.git` 
