@@ -67,7 +67,7 @@ unsigned WINAPI SendMsg(void* arg)   // send thread main
 			closesocket(hSock);
 			exit(0);
 		}
-		else if ((!strcmp(msg, "/list\n")) || (!strcmp(strtok(dum1, " "), "/to"))) {
+		else if ((!strcmp(msg, "/list\n")) || (!strcmp(strtok(dum1, " "), "/to") || )) {
 			send(hSock, msg, strlen(msg), 0);
 		}
 		else {
