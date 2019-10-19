@@ -89,14 +89,15 @@ unsigned WINAPI HandleClnt(void* arg)
 	recv(hClntSock, clientName[clntCnt - 1], sizeof(clientName[clntCnt - 1]), 0);
 
 	for (i = 0; i < clntCnt; i++)
-		if (hClntSock == clntSocks[i])
-			strcpy(hclientName, clientName[i]);
+		if (hClntSock == clntSocks[i-1])
+			strcpy(hclientName, clientName[i-1]);
 
 
 	while ((strLen = recv(hClntSock, msg, sizeof(msg), 0)) != 0) {
 		int check = 0;
-		char dum1[NAME_SIZE];
+		char dum1[BUF_SIZE];
 		strcpy(dum1, msg);
+		
 		if (!strcmp(token = strtok(msg, " "), "/to")) {
 			Sleep(20);
 			if (token = strtok(NULL, " "))
@@ -107,7 +108,7 @@ unsigned WINAPI HandleClnt(void* arg)
 			for (i = 0; i < clntCnt; i++) {
 				if (!strcmp(clientName[i], Msgto)) {
 					send(clntSocks[i], hclientName, sizeof(hclientName), 0);
-					send(clntSocks[i], "´ÔÀÌ ±Ó¼Ó¸»À» º¸³Â½À´Ï´Ù.\n", 40, 0);
+					send(clntSocks[i], "ë‹˜ì´ ê·“ì†ë§ì„ ë³´ëƒˆìŠµë‹ˆë‹¤.\n", 40, 0);
 					Sleep(20);
 					send(clntSocks[i], msg2, sizeof(msg2), 0);
 					send(clntSocks[i], "\n", 10, 0);
@@ -119,7 +120,7 @@ unsigned WINAPI HandleClnt(void* arg)
 			if (check == 0)
 			{
 				send(hClntSock, Msgto, sizeof(Msgto), 0);
-				send(hClntSock, "´ÔÀº ÇöÀç Á¢¼ÓÁßÀÌÁö ¾Ê½À´Ï´Ù.\n---ÇöÀç Á¢¼ÓÁßÀÎ »ç¿ëÀÚ ¸ñ·Ï---\n", 100, 0);
+				send(hClntSock, "ë‹˜ì€ í˜„ì¬ ì ‘ì†ì¤‘ì´ì§€ ì•ŠìŠµë‹ˆë‹¤.\n---í˜„ì¬ ì ‘ì†ì¤‘ì¸ ì‚¬ìš©ì ëª©ë¡---\n", 100, 0);
 				for (i = 0; i < clntCnt; i++) {
 					send(hClntSock, clientName[i], 100, 0);
 					Sleep(20);
@@ -132,69 +133,12 @@ unsigned WINAPI HandleClnt(void* arg)
 				}
 			}
 			else {
-				strcat(Msgto, "´Ô¿¡°Ô ±Ó¼Ó¸»À» º¸³Â½À´Ï´Ù.");
+				strcat(Msgto, "ë‹˜ì—ê²Œ ê·“ì†ë§ì„ ë³´ëƒˆìŠµë‹ˆë‹¤.");
 				send(hClntSock, Msgto, 40, 0);
 			}
 		}
-		else if (!strcmp(token = strtok(msg, " "), "/fileto")) {
-			Sleep(20);
-			if (token = strtok(NULL, " "))
-				strcpy(Msgto, token);
-			if (token = strtok(NULL, "\n"))
-				strcpy(msg2, token);
-
-			int retval;
-			FILE* fp = fopen(msg2, "rb");
-			if (fp == NULL) {
-				perror("ÆÄÀÏ ÀÔÃâ·Â ¿À·ù");
-				return -1;
-			}
-			char filename[256];
-			ZeroMemory(filename, 256);
-			sprintf(filename, msg2);
-			retval = send(hClntSock, filename, 256, 0);
-			if (retval == SOCKET_ERROR) err_quit("send()");
-
-			// ÆÄÀÏ Å©±â ¾ò±â
-			fseek(fp, 0, SEEK_END);      // go to the end of file
-			int totalbytes = ftell(fp);  // get the current position
-
-								  // ÆÄÀÏ Å©±â º¸³»±â
-			retval = send(hClntSock, (char*)& totalbytes,
-				sizeof(totalbytes), 0);
-			if (retval == SOCKET_ERROR) err_quit("send()");
-
-			// ÆÄÀÏ µ¥ÀÌÅÍ Àü¼Û¿¡ »ç¿ëÇÒ º¯¼ö
-			char buf[BUF_SIZE];
-			int numread;
-			int numtotal = 0;
-			rewind(fp); // ÆÄÀÏ Æ÷ÀÎÅÍ¸¦ Á¦ÀÏ ¾ÕÀ¸·Î ÀÌµ¿
-			while (1) {
-				numread = fread(buf, 1, BUF_SIZE, fp);
-				if (numread > 0) {
-					retval = send(hClntSock, buf, numread, 0);
-					if (retval == SOCKET_ERROR) {
-						err_display("send()");
-						break;
-					}
-					numtotal += numread;
-				}
-				else if (numread == 0 && numtotal == totalbytes) {
-					printf("ÆÄÀÏ Àü¼Û ¿Ï·á!: %d ¹ÙÀÌÆ®\n", numtotal);
-					break;
-				}
-				else {
-					perror("ÆÄÀÏ ÀÔÃâ·Â ¿À·ù");
-					break;
-				}
-			}
-			fclose(fp);
-			closesocket(hClntSock);
-			WSACleanup();
-			return 0;
-		}
 		else if (!strcmp(strtok(msg, "\n"), "/list")) {
-			send(hClntSock, "\n---ÇöÀç Á¢¼ÓÁßÀÎ »ç¿ëÀÚ ¸ñ·Ï---\n", 40, 0);
+			send(hClntSock, "\n---í˜„ì¬ ì ‘ì†ì¤‘ì¸ ì‚¬ìš©ì ëª©ë¡---\n", 40, 0);
 			for (i = 0; i < clntCnt; i++) {
 				send(hClntSock, clientName[i], 100, 0);
 				Sleep(20);
